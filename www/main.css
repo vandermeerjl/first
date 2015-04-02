@@ -98,3 +98,8 @@ p {
 	width:30%;
 	max-width: 150px;
 }
+
+.ui-header .ui-title {
+  overflow: visible !important;
+  white-space: normal !important;
+}
