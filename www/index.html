@@ -5,102 +5,151 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Google Maps - jQuery Mobile Demos</title>
 
-		<!-- Include jQuery Mobile stylesheets -->
-		  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 		<link rel="stylesheet" href="main.css">
 
 		<link href='http://fonts.googleapis.com/css?family=Oswald:400,700,300' rel='stylesheet' type='text/css'>
 
-		<!-- Include the jQuery library -->
-		<script src="js/jquery-1.11.3.min.js"></script>
-		<!-- Include the jQuery Mobile library -->
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
 		<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script>
 
 <script>
-		/*
-	 * Google Maps documentation: http://code.google.com/apis/maps/documentation/javascript/basics.html
-	 * Geolocation documentation: http://dev.w3.org/geo/api/spec-source.html
-	 */
+var map;
+var infowindow;
 
-	var map;
-	var infowindow;
+function initialize() {
 
-	function initialize() {
+  var sheridan = new google.maps.LatLng(43.468871, -79.699926);
 
-	  var pyrmont = new google.maps.LatLng(-33.8665433, 151.1956316);
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    center: sheridan,
+    zoom: 15
+  });
 
-	  map = new google.maps.Map(document.getElementById('map-canvas'), {
-	    center: pyrmont,
-	    zoom: 15
-	  });
+  var posInfo = new google.maps.InfoWindow({
+	map: map,
+	content: 'YOU!'
+  });
 
-	  var request = {
-	    location: pyrmont,
-	    radius: 500,
-	    types: ['food']
-	  };
+  var posMarker = new google.maps.Marker({
+	map: map,
+	position: sheridan,
+   });
 
-	  infowindow = new google.maps.InfoWindow();
-	  var service = new google.maps.places.PlacesService(map);
-	  service.nearbySearch(request, callback);
-	}
+  posInfo.open(map, posMarker);
 
-	function callback(results, status) {
-	  if (status == google.maps.places.PlacesServiceStatus.OK) {
-	    for (var i = 0; i < results.length; i++) {
-	      createMarker(results[i]);
-	    }
-	  }
-	}
+  var request = {
+    location: sheridan,
+    radius: 2000,
+    types: ['food']
+  };
 
-	function createMarker(place) {
-	  var placeLoc = place.geometry.location;
-	  var marker = new google.maps.Marker({
-	    map: map,
-	    position: place.geometry.location
-	  });
+  infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+}
 
-	  google.maps.event.addListener(marker, 'click', function() {
-	    infowindow.setContent(place.name);
-	    infowindow.open(map, this);
-	  });
+function callback(results, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      resultsArray.push(results[i]);
+    }
+  }
+}
 
-	}
+var counter = 0;
+var minuser = counter-1;
+var resultsArray = [];
 
-	google.maps.event.addDomListener(window, 'load', initialize);
+$(function() {
+	$("#next").click( function() {
+             counter += 1;
+             createMarker(resultsArray[counter]);
+             resultsArray[minuser].setMap(null);
+             map.panTo(marker.position);
+             map.setZoom(17);
+             map.setCenter(marker.position);
+    });
+});
 
-	var count=30;
+function createMarker(place) {
+  var placeLoc = place.geometry.location;
+  var marker = new google.maps.Marker({
+    map: map,
+    position: place.geometry.location
+  });
 
-	var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+  	infowindow.setContent(place.name);
+    infowindow.open(map, marker);
+}
 
-	function timer() {
+google.maps.event.addDomListener(window, 'load', initialize);
 
-		count=count-1;
-		console.log(count);
-		if (count == 20) {
+///END OF GOOGLE MAPS!
+
+//google.maps.event.addListenerOnce(map, 'idle', function(){
+  //  console.log("READY!");
+//});
+
+
+/////////////TIMER!!!!///////////////////////
+
+	var time=30;
+
+	var timer=setInterval(counterdowner, 1000); //1000 will  run it every 1 second
+
+	function counterdowner() {
+
+		time=time-1;
+		console.log(time);
+		if (time == 20) {
 			$("#imageChange").attr("src", "images/yeti-content.png");
 			console.log("change!");
-		} else if ( count == 10){
+		} else if (time == 10){
 			$("#imageChange").attr("src", "images/yeti-mad.png");
-		} else if (count <= 0) {
+		} else if (time <= 0) {
+
+			clearInterval(timer);
+			
 			$("#imageChange").attr("src", "images/yeti-hungry.png");
-			$("#imageChange").attr("width", "300px");
+			$("#imageChange").attr("width", "60%");
 			$('#header').css("height", "100vh");
 			$("#countdown").css("display", "none");
 			$("#map-canvas").css("display", "none");
+			$("#footer").css("display", "none");
+
+			$("#yetiChose").html("EAT OR BE EATEN!");
 
 			var audioElement = document.createElement('audio');
 			audioElement.setAttribute('src', 'bear.wav');
 			audioElement.play();
-
-			clearInterval(counter);
-			return;
 		}
 
-			document.getElementById("countdown").innerHTML=count + " secs"; // watch for spelling
+			document.getElementById("countdown").innerHTML=time + " secs";
+
+			$(function() {
+				$("#pick").click( function() {
+
+					clearInterval(timer);
+
+             		$("#imageChange").attr("src", "images/yeti-happy.png");
+					$("#imageChange").attr("width", "60%");
+					$('#header').css("height", "100vh");
+					$("#countdown").css("display", "none");
+					$("#map-canvas").css("display", "none");
+					$("#footer").css("display", "none");
+
+					$("#yetiChose").html("YOU CHOSE:");
+					$("#yetiSpeak").html(infowindow.content);
+
+           		});
+			});
 	}
+
+////////////SWIPING!!!!//////////////////
 
       $(document).on('swipeleft swiperight', function (event) {
        if(event.type == 'swiperight') {
@@ -121,30 +170,38 @@
       });
 
 
+
 </script>
 
 	</head>
 	<body>
 
 		<div data-role="page" id="pageone">
-
-		    <div data-role="main" class="ui-content">
-		    	<img src="images/yeti-content.png" width="300px">
+		    <div data-role="main" id="pageoneContent" class="ui-content">
+		    	<img id="homeImage" src="images/yeti-content.png" >
 		    	<h1>HUNGRY YETI</h1>
 		    	<p>Pick a place to eat before the yeti picks one for you! </p>
-		    	<a href="#map-page" data-transition="slide" data-role="button">START!</a>
+		    	<a href="#map-page" data-transition="slide" data-inline="true" data-role="button">START!</a>
 		    </div>
 		</div> 
 
 		<div data-role="page" id="map-page" data-url="map-page">
 		    <div  id = "header" data-role="header" data-theme="a">
 		    	<div id= "imageContainer">
-			   		<img id="imageChange" src="images/yeti-happy.png" width="150px">
+			   		<img id="imageChange" src="images/yeti-happy.png">
 			   	</div>
 			    <h1 id = "countdown"></h1>
+			    <h1 id ="yetiChose"></h1>
+			    <h1 id ="yetiSpeak"></h1>
 		    </div>
 		    <div role="main" class="ui-content" id="map-canvas">
 		     <!-- map loads here... -->
+		    </div>
+		    <div data-role="footer" id = "footer">
+		    	<div id="buttonWrapper">
+			    	<a id="pick" data-inline="true" data-icon="check" data-role="button"> PICK! </a>
+			    	<a id="next" data-inline="true" data-icon="carat-r" data-role="button" > NEXT!</a>
+			    </div>
 		    </div>
 		</div>
 
