@@ -20,6 +20,27 @@
 
 <script>
 
+var logitudeValue = -79.699926;
+var latitudeValue = 43.468871;
+
+/*
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        logitudeValue = -79.699926;
+        latitudeValue = 43.468871;
+        console.log("NOT DETECTED")
+    }
+}
+function showPosition(position) {
+    latitudeValue = position.coords.latitude; 
+    lognitudeValue = position.coords.longitude; 
+    console.log("DETECTED")
+}
+
+*/
+
 $(function() {
 	$("#start").click( function() {
 		$.mobile.changePage('#map-page', {
@@ -34,7 +55,7 @@ var resultsArray;
 
 function initialize() {
 
-  var sheridan = new google.maps.LatLng(43.468871, -79.699926);
+  var sheridan = new google.maps.LatLng(latitudeValue, logitudeValue);
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     center: sheridan,
@@ -66,7 +87,8 @@ function initialize() {
   
   var service = new google.maps.places.PlacesService(map);
   service.nearbySearch(request, callback);
-}
+
+}//initialize
 
 function callback(results, status) {
   if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -77,23 +99,29 @@ function callback(results, status) {
 }
 
 var counter = 0;
-var minuser = counter-1;
 var resultsArray = [];
+var marker;
+var placeLoc;
 
 $(function() {
 	$("#next").click( function() {
              counter += 1;
              createMarker(resultsArray[counter]);
-             resultsArray[minuser].setMap(null);
              map.panTo(marker.position);
              map.setZoom(17);
              map.setCenter(marker.position);
+             console.log("COUNTER:" +counter);
+             console.log("ARRAY:" + resultsArray.length);
+             if (counter == resultsArray.length -1) {
+             	counter=0;
+             	console.log("radius reset!")
+             }
     });
 });
 
 function createMarker(place) {
-  var placeLoc = place.geometry.location;
-  var marker = new google.maps.Marker({
+  placeLoc = place.geometry.location;
+  marker = new google.maps.Marker({
     map: map,
     position: place.geometry.location
   });
@@ -115,7 +143,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 	var time=30;
 
-	var timer=setInterval(counterdowner, 1000); //1000 will  run it every 1 second
+	var timer=setInterval(counterdowner, 1000);
 
 	function counterdowner() {
 
@@ -133,16 +161,18 @@ google.maps.event.addDomListener(window, 'load', initialize);
 			$("#imageChange").attr("src", "images/yeti-hungry.png");
 			$("#imageChange").css("width", "80%");
 			$("#imageChange").css("max-width", "350px");
+			$("#imageChange").css("margin-top", "20vh");
 			$('#header').css("height", "100vh");
 			$("#countdown").css("display", "none");
 			$("#map-canvas").css("display", "none");
 			$("#footer").css("display", "none");
 
-			$("#yetiChose").html("TOO LATE! YETI CHOSES:");
-			$("#yetiSpeak").html(randoRest);
-
 			var rando = Math.floor(Math.random()*(resultsArray.length));
-			var randoRest = infowindow.content(resultsArray[rando]);
+			var randoRest = resultsArray[rando];
+			console.log(randoRest);
+
+			$("#yetiChose").html("TOO LATE! YETI CHOSES:");
+			$("#yetiSpeak").html(randoRest.name);
 
 			var audioElement = document.createElement('audio');
 			audioElement.setAttribute('src', 'bear.wav');
@@ -150,15 +180,15 @@ google.maps.event.addDomListener(window, 'load', initialize);
 		}
 
 			document.getElementById("countdown").innerHTML=time + " secs";
-
-			$(function() {
-				$("#pick").click( function() {
+			
+			$("#pick").click( function() {
 
 					clearInterval(timer);
 
              		$("#imageChange").attr("src", "images/yeti-happy.png");
 					$("#imageChange").css("width", "80%");
 					$("#imageChange").css("max-width", "350px");
+					$("#imageChange").css("margin-top", "20vh");
 					$('#header').css("height", "100vh");
 					$("#countdown").css("display", "none");
 					$("#map-canvas").css("display", "none");
@@ -168,8 +198,8 @@ google.maps.event.addDomListener(window, 'load', initialize);
 					$("#yetiSpeak").html(infowindow.content);
 
            		});
-			});
 	}
+
 
 ////////////SWIPING!!!!//////////////////
 
@@ -198,7 +228,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 
 	</head>
-	<body>
+	 <body>
 
 		<div data-role="page" id="pageone">
 		    <div data-role="main" id="pageoneContent" class="ui-content">
@@ -224,7 +254,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 		    <div data-role="footer" id = "footer">
 		    	<div id="buttonWrapper">
 			    	<a id="pick" data-inline="true" data-icon="check" data-role="button"> PICK! </a>
-			    	<a id="next" data-inline="true" data-icon="carat-r" data-role="button" > NEXT!</a>
+			    	<a id="next" data-inline="true" data-icon="carat-r" data-role="button"  data-iconpos="right" > NEXT!</a>
 			    </div>
 		    </div>
 		</div>
